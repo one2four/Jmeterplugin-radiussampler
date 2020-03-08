@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<project name="Jmeterplugin-radiussampler" default="CreateJar">
+	<target name="CreateJar" description="Create Jar file">
+		<jar jarfile="RadiusSampler.jar">
+			<fileset dir="bin/" includes="**/*.class" />
+			<fileset dir="bin/" includes="org/tinyradius/dictionary/default_dictionary" />
+		</jar>
+	</target>
+</project>

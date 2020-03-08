@@ -2,8 +2,6 @@ package com.ipass.jmeterplugin.radiussampler;
 
 import org.apache.jmeter.testelement.property.CollectionProperty;
 import org.apache.jmeter.testelement.property.JMeterProperty;
-import org.apache.soap.providers.com.Log;
-import org.htmlparser.Remark;
 import org.tinyradius.attribute.RadiusAttribute;
 import org.tinyradius.packet.AccessRequest;
 import org.tinyradius.packet.AccountingRequest;
