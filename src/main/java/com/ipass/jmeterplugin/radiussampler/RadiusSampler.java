@@ -1,5 +1,6 @@
 package com.ipass.jmeterplugin.radiussampler;
 
+import java.util.Hashtable;
 import java.util.Random;
 
 import org.apache.jmeter.samplers.AbstractSampler;
@@ -14,7 +15,7 @@ import org.tinyradius.util.RadiusClient;
 
 public class RadiusSampler extends AbstractSampler
 {
-
+	private static Hashtable<String, RadiusClient> radiusclients = new Hashtable<String, RadiusClient>(300);
 	private static Random random = new Random();
 
 	public static void main(String[] args) {
@@ -42,7 +43,7 @@ public class RadiusSampler extends AbstractSampler
 
 	public SampleResult sample(Entry arg0)
 	{
-
+	    RadiusClient rcClient = null;
 		String userName = getUserName();
 		String password = getPassword();
 		String serverIp = getServerIp();
@@ -73,6 +74,14 @@ public class RadiusSampler extends AbstractSampler
 			password = add.getRequiredAttribute(collectionProperty,"user-password");
 		}		
 
+		if (radiusclients.containsKey(getThreadName())) {
+			rcClient = radiusclients.get(getThreadName());
+		}
+		else {
+			rcClient = new RadiusClient(serverIp,sharedSecret);
+            radiusclients.put(getThreadName(), rcClient);
+	    }
+		
 		res.sampleStart();
 
 		//collectionProperty = add.removeAttributes(collectionProperty);
@@ -85,7 +94,6 @@ public class RadiusSampler extends AbstractSampler
 
 			try
 			{
-				RadiusClient rcClient = null;
 				AccessRequest accessReq = null;
 				AccountingRequest acctReq = null;
 				RadiusPacket authRadiusPacket = null;
@@ -102,7 +110,6 @@ public class RadiusSampler extends AbstractSampler
 				if(reqType.equalsIgnoreCase("both")){
 					reqAuthNAcct=true;
 					//Auth Records
-					rcClient = new RadiusClient(serverIp,sharedSecret);
 					accessReq = new AccessRequest(userName, password);
 					rcClient.setAuthPort(authPort);
 					if(timeout>0)
@@ -119,7 +126,6 @@ public class RadiusSampler extends AbstractSampler
 
 
 					//Start Records
-					rcClient = new RadiusClient(serverIp,sharedSecret);
 					acctReq = new AccountingRequest(userName, AccountingRequest.ACCT_STATUS_TYPE_START);
 					rcClient.setAcctPort(acctPort);
 					if(timeout>0)
@@ -133,7 +139,6 @@ public class RadiusSampler extends AbstractSampler
 					acctStartRadiusPacket=rcClient.account(acctReq);
 
 					//Stop records
-					rcClient = new RadiusClient(serverIp,sharedSecret);
 					acctReq = new AccountingRequest(userName, AccountingRequest.ACCT_STATUS_TYPE_STOP);
 					rcClient.setAcctPort(acctPort);
 					if(timeout>0)
@@ -150,7 +155,6 @@ public class RadiusSampler extends AbstractSampler
 
 				}else if(reqType.equalsIgnoreCase("auth")){
 					//Auth Records
-					rcClient = new RadiusClient(serverIp,sharedSecret);
 					accessReq = new AccessRequest(userName, password);
 					rcClient.setAuthPort(authPort);
 					if(collectionProperty!=null)
@@ -166,7 +170,6 @@ public class RadiusSampler extends AbstractSampler
 					authRadiusPacket=rcClient.authenticate(accessReq);
 				}else if(reqType.equalsIgnoreCase("acct")){
 					authRAcct=false;
-					rcClient = new RadiusClient(serverIp,sharedSecret);
 					acctReq = new AccountingRequest(userName, AccountingRequest.ACCT_STATUS_TYPE_START);
 					rcClient.setAcctPort(acctPort);
 					if(collectionProperty!=null)
@@ -182,7 +185,6 @@ public class RadiusSampler extends AbstractSampler
 					acctStartRadiusPacket=rcClient.account(acctReq);
 
 					//Stop records
-					rcClient = new RadiusClient(serverIp,sharedSecret);
 					acctReq = new AccountingRequest(userName, AccountingRequest.ACCT_STATUS_TYPE_STOP);
 					rcClient.setAcctPort(acctPort);
 					/*if(acctRadAttr!=null)
@@ -266,6 +268,8 @@ public class RadiusSampler extends AbstractSampler
 				res.setSuccessful(false);
 				res.setResponseMessage(excep.getMessage());
 				res.setResponseCode("500");
+				
+	            radiusclients.remove(getThreadName());
 			}
 			finally {
 
