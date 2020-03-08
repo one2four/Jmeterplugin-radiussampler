@@ -15,8 +15,10 @@ import org.tinyradius.util.RadiusClient;
 
 public class RadiusSampler extends AbstractSampler
 {
-	private static Hashtable<String, RadiusClient> radiusclients = new Hashtable<String, RadiusClient>(300);
+
 	private static Random random = new Random();
+
+	private Hashtable<String, RadiusClient> radiusclients = new Hashtable<String, RadiusClient>(300);
 
 	public static void main(String[] args) {
 		String str=frameSessionId("pavan@ipass.com");
@@ -74,13 +76,15 @@ public class RadiusSampler extends AbstractSampler
 			password = add.getRequiredAttribute(collectionProperty,"user-password");
 		}		
 
-		if (radiusclients.containsKey(getThreadName())) {
-			rcClient = radiusclients.get(getThreadName());
-		}
-		else {
-			rcClient = new RadiusClient(serverIp,sharedSecret);
-            radiusclients.put(getThreadName(), rcClient);
-	    }
+        String hashkey = getThreadName() + ":" + getServerIp() + ":" + getAuthPort() + ":" + getAcctPort();
+
+        if (radiusclients.containsKey(hashkey)) {
+            rcClient = radiusclients.get(hashkey);
+        }
+        else {
+            rcClient = new RadiusClient(serverIp,sharedSecret);
+            radiusclients.put(hashkey, rcClient);
+        }
 		
 		res.sampleStart();
 
@@ -269,7 +273,8 @@ public class RadiusSampler extends AbstractSampler
 				res.setResponseMessage(excep.getMessage());
 				res.setResponseCode("500");
 				
-	            radiusclients.remove(getThreadName());
+				rcClient.close();
+				radiusclients.remove(hashkey);
 			}
 			finally {
 
