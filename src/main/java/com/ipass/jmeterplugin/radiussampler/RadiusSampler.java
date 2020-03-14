@@ -89,9 +89,7 @@ public class RadiusSampler extends AbstractSampler
 		
 		res.sampleStart();
 
-		if ( (userName!=null && userName.length()>0 && password!=null && password.length()>0 ) && (serverIp != null) && (serverIp.length() > 0) && (authPort!=0 || acctPort !=0) && (sharedSecret!=null && sharedSecret.length()>0))
-		{
-
+		if ( (userName!=null && userName.length()>0 && password!=null && password.length()>0 ) && (serverIp != null) && (serverIp.length() > 0) && (authPort!=0 || acctPort !=0) && (sharedSecret!=null && sharedSecret.length()>0)) {
 			if(System.getenv("GEN_SES_ID")!=null && System.getenv("GEN_SES_ID").toLowerCase().equals("true"))
 				userName = frameSessionId(userName);
 
@@ -202,8 +200,6 @@ public class RadiusSampler extends AbstractSampler
 		return getPropertyAsString(RadiusSamplerElements.SERVER_IP);
 	}
 
-
-
 	public void setSharedSecret(String sharedSecret)
 	{
 		setProperty(RadiusSamplerElements.SHARED_SECRET, sharedSecret);
@@ -275,5 +271,4 @@ public class RadiusSampler extends AbstractSampler
 	{
 		return getPropertyAsString(RadiusSamplerElements.PASSWORD);
 	}
-
 }
