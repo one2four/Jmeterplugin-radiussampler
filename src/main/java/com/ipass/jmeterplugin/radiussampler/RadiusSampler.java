@@ -113,7 +113,6 @@ public class RadiusSampler extends AbstractSampler
                     if (authRadiusPacket != null) {
                         res.setSuccessful(true);
                         res.setResponseCodeOK();
-                        res.setDataType("text");
                     }
                     else {
                         res.setSuccessful(false);
@@ -146,7 +145,6 @@ public class RadiusSampler extends AbstractSampler
                         if (acctStopRadiusPacket != null) {
                             res.setSuccessful(true);
                             res.setResponseCodeOK();
-                            res.setDataType("text");
                         }
                         else {
                             res.setSuccessful(false);
